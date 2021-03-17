@@ -1,5 +1,7 @@
 # vue-dts-gen
 
+[![npm version](https://badgen.net/npm/v/express)](https://npm.im/vue-dts-gen)
+
 Generate `d.ts` from `.vue` files.
 
 ## Install
