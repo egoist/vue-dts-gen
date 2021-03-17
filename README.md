@@ -34,7 +34,7 @@ vue-dts-gen src/App.vue
 
 # Or glob patterns
 vue-dts-gen "src/*.vue"
-# Emits dist/*App*.d.ts
+# Emits dist/*.d.ts
 ```
 
 Only `d.ts` files are emitted.
