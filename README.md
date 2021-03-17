@@ -1,3 +1,7 @@
+**💛 You can help the author become a full-time open-source maintainer by [sponsoring him on GitHub](https://github.com/sponsors/egoist).**
+
+---
+
 # vue-dts-gen
 
 [![npm version](https://badgen.net/npm/v/vue-dts-gen)](https://npm.im/vue-dts-gen)
