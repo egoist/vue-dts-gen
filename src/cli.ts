@@ -6,9 +6,10 @@ const cli = cac('vue-dts-gen')
 
 cli
   .command('[...vue files]', 'Generate .d.ts for .vue files')
-  .action(async (input) => {
+  .option('--outDir <dir>', 'Output directory')
+  .action(async (input, flags: { outDir?: string }) => {
     const { build } = await import('./')
-    await build({ input })
+    await build({ input, outDir: flags.outDir })
   })
 
 cli.version(version)

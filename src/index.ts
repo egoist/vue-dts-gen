@@ -6,14 +6,16 @@ import glob from 'fast-glob'
 
 export type Options = {
   input: string | string[]
+  outDir?: string
 }
 
-export async function build({ input }: Options) {
+export async function build({ input, outDir }: Options) {
   const project = new Project({
     compilerOptions: {
       allowJs: true,
       declaration: true,
       emitDeclarationOnly: true,
+      outDir,
     },
     tsConfigFilePath: 'tsconfig.json',
     skipAddingFilesFromTsConfig: true,
