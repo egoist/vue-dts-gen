@@ -12,14 +12,15 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@vue/compiler-sfc": "^3.0.7",
     "cac": "^6.7.2",
     "fast-glob": "^3.2.5"
   },
   "devDependencies": {
     "@egoist/prettier-config": "^0.1.0",
     "@types/node": "^14.14.35",
+    "@vue/compiler-sfc": "^3.0.7",
     "prettier": "^2.2.1",
+    "resolve-from": "^5.0.0",
     "sucrase": "^3.17.1",
     "ts-morph": "^10.0.1",
     "tsup": "^4.8.11",
