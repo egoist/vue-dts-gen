@@ -10,6 +10,9 @@ export type Options = {
 }
 
 export async function build({ input, outDir }: Options) {
+  const tsConfigFilePath = fs.existsSync('tsconfig.json')
+    ? 'tsconfig.json'
+    : undefined
   const project = new Project({
     compilerOptions: {
       allowJs: true,
@@ -17,7 +20,7 @@ export async function build({ input, outDir }: Options) {
       emitDeclarationOnly: true,
       outDir,
     },
-    tsConfigFilePath: 'tsconfig.json',
+    tsConfigFilePath,
     skipAddingFilesFromTsConfig: true,
   })
   const files = await glob(input)
