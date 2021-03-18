@@ -1,6 +1,5 @@
 import path from 'path'
 import fs from 'fs'
-import { parse, compileScript } from '@vue/compiler-sfc'
 import { Project, SourceFile } from 'ts-morph'
 import glob from 'fast-glob'
 
@@ -9,7 +8,25 @@ export type Options = {
   outDir?: string
 }
 
+let vueCompiler: typeof import('@vue/compiler-sfc')
+
+const getVueCompiler = () => {
+  if (!vueCompiler) {
+    try {
+      vueCompiler = require(path.resolve('node_modules/@vue/compiler-sfc'))
+    } catch (error) {
+      if (error.code === 'MODULE_NOT_FOUND') {
+        throw new Error(`@vue/compiler-sfc is not founded in ./node_modules`)
+      }
+      throw error
+    }
+  }
+
+  return vueCompiler
+}
+
 export async function build({ input, outDir }: Options) {
+  const vueCompiler = getVueCompiler()
   const tsConfigFilePath = fs.existsSync('tsconfig.json')
     ? 'tsconfig.json'
     : undefined
@@ -30,7 +47,7 @@ export async function build({ input, outDir }: Options) {
   await Promise.all(
     files.map(async (file) => {
       const content = await fs.promises.readFile(file, 'utf8')
-      const sfc = parse(content)
+      const sfc = vueCompiler.parse(content)
       const { script, scriptSetup } = sfc.descriptor
       if (script || scriptSetup) {
         let content = ''
@@ -40,7 +57,9 @@ export async function build({ input, outDir }: Options) {
           if (script.lang === 'ts') isTS = true
         }
         if (scriptSetup) {
-          const compiled = compileScript(sfc.descriptor, { id: 'xxx' })
+          const compiled = vueCompiler.compileScript(sfc.descriptor, {
+            id: 'xxx',
+          })
           content += compiled.content
           if (scriptSetup.lang === 'ts') isTS = true
         }
