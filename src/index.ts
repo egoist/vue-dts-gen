@@ -35,6 +35,7 @@ export async function build({ input, outDir }: Options) {
       allowJs: true,
       declaration: true,
       emitDeclarationOnly: true,
+      noEmitOnError: true,
       outDir,
     },
     tsConfigFilePath,
@@ -64,9 +65,7 @@ export async function build({ input, outDir }: Options) {
           if (scriptSetup.lang === 'ts') isTS = true
         }
         const sourceFile = project.createSourceFile(
-          path
-            .relative(process.cwd(), file)
-            .replace('.vue', isTS ? '.ts' : '.js'),
+          path.relative(process.cwd(), file) + (isTS ? '.ts' : '.js'),
           content,
         )
         sourceFiles.push(sourceFile)
@@ -77,16 +76,14 @@ export async function build({ input, outDir }: Options) {
   const diagnostics = project.getPreEmitDiagnostics()
   console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
 
-  const result = await project.emit()
-
-  console.log(
-    project.formatDiagnosticsWithColorAndContext(result.getDiagnostics()),
-  )
+  project.emitToMemory()
 
   for (const sourceFile of sourceFiles) {
     const emitOutput = sourceFile.getEmitOutput()
     for (const outputFile of emitOutput.getOutputFiles()) {
-      console.log(`Emitted ${outputFile.getFilePath()}`)
+      const filepath = outputFile.getFilePath().replace('.vue.d.ts', '.d.ts')
+      await fs.promises.writeFile(filepath, outputFile.getText(), 'utf8')
+      console.log(`Emitted ${filepath}`)
     }
   }
 }
