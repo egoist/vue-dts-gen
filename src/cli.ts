@@ -7,7 +7,7 @@ const cli = cac('vue-dts-gen')
 cli
   .command('[...vue files]', 'Generate .d.ts for .vue files')
   .option('--outDir <dir>', 'Output directory')
-  .option('--tsconfig <dir>','specified tsconfig.json path')
+  .option('--tsconfig <dir>','specified tsconfig.json with absolute path')
   .action(async (input, flags: { outDir?: string,tsconfig?:string }) => {
     const { build } = await import('./')
     await build({ input, outDir: flags.outDir,tsconfig:flags.tsconfig })
