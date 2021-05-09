@@ -1,11 +1,12 @@
 import path from 'path'
 import fs from 'fs'
-import { Project, SourceFile } from 'ts-morph'
+import { Project, SourceFile, ts } from 'ts-morph'
 import glob from 'fast-glob'
 
 export type Options = {
   input: string | string[]
   outDir?: string
+  tsconfig?:string
 }
 
 let vueCompiler: typeof import('@vue/compiler-sfc')
@@ -25,11 +26,30 @@ const getVueCompiler = () => {
   return vueCompiler
 }
 
-export async function build({ input, outDir }: Options) {
+export async function build({ input, outDir,tsconfig }: Options) {
   const vueCompiler = getVueCompiler()
-  const tsConfigFilePath = fs.existsSync('tsconfig.json')
-    ? 'tsconfig.json'
-    : undefined
+  if (Array.isArray(input)) {
+   input = input.map((v)=>{
+      v=v.split(path.sep).join('/');
+      return v;
+    })
+  }
+  else{
+   input = input.split(path.sep).join('/')
+  }
+  let tsConfigFilePath:string|undefined
+    if (tsconfig){
+      tsConfigFilePath = tsconfig
+      if (!fs.existsSync(tsConfigFilePath)) {
+        tsConfigFilePath = undefined
+      }
+     tsConfigFilePath ? console.log('Using tsconfig:',tsConfigFilePath):console.log('tsconfig don\'t exist');
+    }
+  else {
+    tsConfigFilePath = fs.existsSync('tsconfig.json')
+      ? 'tsconfig.json'
+      : undefined
+  }
   const project = new Project({
     compilerOptions: {
       allowJs: true,
