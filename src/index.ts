@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { Project, SourceFile, ts } from 'ts-morph'
+import { Project, SourceFile } from 'ts-morph'
 import glob from 'fast-glob'
 
 export type Options = {
