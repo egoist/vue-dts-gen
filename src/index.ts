@@ -82,6 +82,7 @@ export async function build({ input, outDir }: Options) {
     const emitOutput = sourceFile.getEmitOutput()
     for (const outputFile of emitOutput.getOutputFiles()) {
       const filepath = outputFile.getFilePath().replace('.vue.d.ts', '.d.ts')
+      await fs.promises.mkdir(path.dirname(filepath), { recursive: true })
       await fs.promises.writeFile(filepath, outputFile.getText(), 'utf8')
       console.log(`Emitted ${filepath}`)
     }
