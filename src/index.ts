@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { Project, SourceFile } from 'ts-morph'
+import { Project, SourceFile, ts } from 'ts-morph'
 import glob from 'fast-glob'
 
 export type Options = {
@@ -68,6 +68,25 @@ export async function build({ input, outDir }: Options) {
           path.relative(process.cwd(), file) + (isTS ? '.ts' : '.js'),
           content,
         )
+        sourceFile.transform((traversal) => {
+          const node = traversal.visitChildren() // return type is `ts.Node`
+          if (ts.isImportDeclaration(node)) {
+            return ts.factory.updateImportDeclaration(
+              node,
+              node.decorators,
+              node.modifiers,
+              node.importClause,
+              ts.factory.createStringLiteral(
+                node.moduleSpecifier
+                  .getText()
+                  .replace(/\.vue/, '')
+                  .replace(/^'|'$/g, ''),
+                true,
+              ),
+            )
+          }
+          return node
+        })
         sourceFiles.push(sourceFile)
       }
     }),
