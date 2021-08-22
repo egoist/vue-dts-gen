@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { Project, SourceFile } from 'ts-morph'
 import glob from 'fast-glob'
+import resolveFrom from 'resolve-from'
 
 export type Options = {
   input: string | string[]
@@ -12,14 +13,11 @@ let vueCompiler: typeof import('@vue/compiler-sfc')
 
 const getVueCompiler = () => {
   if (!vueCompiler) {
-    try {
-      vueCompiler = require(path.resolve('node_modules/@vue/compiler-sfc'))
-    } catch (error) {
-      if (error.code === 'MODULE_NOT_FOUND') {
-        throw new Error(`@vue/compiler-sfc is not founded in ./node_modules`)
-      }
-      throw error
+    const id = resolveFrom.silent(process.cwd(), '@vue/compiler-sfc')
+    if (!id) {
+      throw new Error(`@vue/compiler-sfc is not founded in ./node_modules`)
     }
+    vueCompiler = require(id)
   }
 
   return vueCompiler
