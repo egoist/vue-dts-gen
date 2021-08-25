@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { Project, SourceFile } from 'ts-morph'
+import { Project, SourceFile, CompilerOptions } from 'ts-morph'
 import glob from 'fast-glob'
 import resolveFrom from 'resolve-from'
 
@@ -28,14 +28,17 @@ export async function build({ input, outDir }: Options) {
   const tsConfigFilePath = fs.existsSync('tsconfig.json')
     ? 'tsconfig.json'
     : undefined
+  const compilerOptions: CompilerOptions = {
+    allowJs: true,
+    declaration: true,
+    emitDeclarationOnly: true,
+    noEmitOnError: true,
+  }
+  if (outDir) {
+    compilerOptions.outDir = outDir
+  }
   const project = new Project({
-    compilerOptions: {
-      allowJs: true,
-      declaration: true,
-      emitDeclarationOnly: true,
-      noEmitOnError: true,
-      outDir,
-    },
+    compilerOptions,
     tsConfigFilePath,
     skipAddingFilesFromTsConfig: true,
   })
@@ -46,6 +49,17 @@ export async function build({ input, outDir }: Options) {
   await Promise.all(
     files.map(async (file) => {
       const content = await fs.promises.readFile(file, 'utf8')
+      if (file.endsWith('.ts')) {
+        const sourceFile = project.createSourceFile(
+          path.relative(process.cwd(), file),
+          content,
+          {
+            overwrite: true,
+          },
+        )
+        sourceFiles.push(sourceFile)
+        return
+      }
       const sfc = vueCompiler.parse(content)
       const { script, scriptSetup } = sfc.descriptor
       if (script || scriptSetup) {
@@ -74,7 +88,7 @@ export async function build({ input, outDir }: Options) {
   const diagnostics = project.getPreEmitDiagnostics()
   console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
 
-  project.emitToMemory()
+  const emitted = project.emitToMemory()
 
   for (const sourceFile of sourceFiles) {
     const emitOutput = sourceFile.getEmitOutput()

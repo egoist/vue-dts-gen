@@ -33,7 +33,7 @@ vue-dts-gen src/App.vue
 # Emits dist/App.d.ts
 
 # Or glob patterns
-vue-dts-gen "src/*.vue"
+vue-dts-gen "src/*.{ts,vue}"
 # Emits dist/*.d.ts
 ```
 
